@@ -18,6 +18,8 @@ Pacman agents (in searchAgents.py).
 """
 
 import util
+#from searchAgents import PositionSearchProblem
+
 
 class SearchProblem:
     """
@@ -71,7 +73,7 @@ def tinyMazeSearch(problem):
     s = Directions.SOUTH
     w = Directions.WEST
     return  [s, s, w, s, w, w, s, w]
-
+import searchAgents
 def depthFirstSearch(problem: SearchProblem):
     """
     Search the deepest nodes in the search tree first.
@@ -87,7 +89,51 @@ def depthFirstSearch(problem: SearchProblem):
     print("Start's successors:", problem.getSuccessors(problem.getStartState()))
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    specifiedActions = [] #Set of action that i will return to get the goal
+    previouslyVisited = set() # I use it as a reference as not to visit a place twice
+    previouslyVisited.add(problem.getStartState()) # add initial state as visited
+    problemStack = util.Stack()
+    problemStack.push(problem.getStartState())
+
+    while not problem.isGoalState(problem.getStartState()): # while i could not achieve the goal
+        nextPossilbeMoves = problem.getSuccessors(problem.getStartState()) # possible actions from my positions
+        nextPossilbeMoves.sort(key=lambda t: t[2])  # sort possible actions alphapitically
+        if not nextPossilbeMoves:
+            # set current state to previous
+            specifiedActions.pop()
+            prevPositiionVisited = problemStack.pop()
+            problem = searchAgents.PositionSearchProblem(problem.gameState, problem.costFn,problem.goal, prevPositiionVisited,problem.warn, problem.visualize)
+            continue
+
+        indexAction = 0
+        # try to find the first index of list which is not visited, if all are visited; then go to except
+        try:
+            while (nextPossilbeMoves[indexAction][0]) in previouslyVisited:
+                indexAction +=1
+        except IndexError:
+            # i will get to the last visited place
+            specifiedActions.pop()
+            print(specifiedActions)
+            prevPositiionVisited = problemStack.pop()
+            if prevPositiionVisited == problem.getStartState():
+                prevPositiionVisited = problemStack.pop()
+            # set problem to current state
+            problem = searchAgents.PositionSearchProblem(problem.gameState, problem.costFn, problem.goal,
+                                                         prevPositiionVisited, problem.warn, problem.visualize)
+            continue
+
+        firstAction = nextPossilbeMoves[indexAction]
+        previouslyVisited.add(firstAction[0])
+        problemStack.push(firstAction[0])
+        # set current state to now
+        problem = searchAgents.PositionSearchProblem(problem.gameState, problem.costFn,problem.goal, firstAction[0],problem.warn, problem.visualize)
+        # add action to specified actoins
+        specifiedActions.append(firstAction[1])
+        # check if not visited
+    print(specifiedActions)
+    return specifiedActions
+
+    #util.raiseNotDefined()
 
 def breadthFirstSearch(problem: SearchProblem):
     """Search the shallowest nodes in the search tree first."""
