@@ -156,10 +156,37 @@ def breadthFirstSearch(problem: SearchProblem):
 
 
 def uniformCostSearch(problem: SearchProblem):
-    """Search the node of least total cost first."""
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    """Search the node of least total cost first.
 
+    should be same as UCS but only different in the cost, we just add a new term to the cost funtion
+    but i assume we still use priority queue
+    """
+
+    "*** YOUR CODE HERE ***"
+    problemPriorityQueue = util.PriorityQueue()
+    previouslyVisited = set()  # I use it as a reference as not to visit a place twice
+
+    problemPriorityQueue.push((problem.getStartState(), []), 1/(problem.getStartState()[0]**2))
+
+    if problem.isGoalState(problem.getStartState()):
+        return []
+
+    while not problem.isGoalState(problem.getStartState()):
+        point, pathToPoint = problemPriorityQueue.pop()
+        previouslyVisited.add(point)
+
+        if problem.isGoalState(point):
+            return pathToPoint
+
+        nextPossibleMoves = problem.getSuccessors(point)
+
+        if nextPossibleMoves:
+            nextPossibleMoves.sort(key=lambda t: t[2])  # sort them alphapitically to use the first one first
+            for move in nextPossibleMoves:
+                if not move[0] in previouslyVisited:
+                    newPathToPoint = pathToPoint + [move[1]]
+                    #problemPriorityQueue.push((move[0], newPathToPoint),1/move[0][0]**2)
+                    problemPriorityQueue.push((move[0], newPathToPoint),problem.getCostOfActions(newPathToPoint))
 
 def nullHeuristic(state, problem=None):
     """
@@ -172,7 +199,30 @@ def nullHeuristic(state, problem=None):
 def aStarSearch(problem: SearchProblem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    problemPriorityQueue = util.PriorityQueue()
+    previouslyVisited = set()  # I use it as a reference as not to visit a place twice
+
+    problemPriorityQueue.push((problem.getStartState(), []), 1 / (problem.getStartState()[0] ** 2))
+
+    if problem.isGoalState(problem.getStartState()):
+        return []
+
+    while not problem.isGoalState(problem.getStartState()):
+        point, pathToPoint = problemPriorityQueue.pop()
+        previouslyVisited.add(point)
+
+        if problem.isGoalState(point):
+            return pathToPoint
+
+        nextPossibleMoves = problem.getSuccessors(point)
+
+        if nextPossibleMoves:
+            nextPossibleMoves.sort(key=lambda t: t[2])  # sort them alphapitically to use the first one first
+            for move in nextPossibleMoves:
+                if not move[0] in previouslyVisited:
+                    newPathToPoint = pathToPoint + [move[1]]
+                    # problemPriorityQueue.push((move[0], newPathToPoint),1/move[0][0]**2)
+                    problemPriorityQueue.push((move[0], newPathToPoint), problem.getCostOfActions(newPathToPoint))
 
 
 # Abbreviations
