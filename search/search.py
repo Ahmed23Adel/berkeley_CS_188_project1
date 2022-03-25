@@ -18,7 +18,9 @@ Pacman agents (in searchAgents.py).
 """
 
 import util
-#from searchAgents import PositionSearchProblem
+
+
+# from searchAgents import PositionSearchProblem
 
 
 class SearchProblem:
@@ -72,8 +74,12 @@ def tinyMazeSearch(problem):
     from game import Directions
     s = Directions.SOUTH
     w = Directions.WEST
-    return  [s, s, w, s, w, w, s, w]
+    return [s, s, w, s, w, w, s, w]
+
+
 import searchAgents
+
+
 def depthFirstSearch(problem: SearchProblem):
     """
     Search the deepest nodes in the search tree first.
@@ -89,61 +95,71 @@ def depthFirstSearch(problem: SearchProblem):
     print("Start's successors:", problem.getSuccessors(problem.getStartState()))
     """
     "*** YOUR CODE HERE ***"
-    specifiedActions = [] #Set of action that i will return to get the goal
-    previouslyVisited = set() # I use it as a reference as not to visit a place twice
-    previouslyVisited.add(problem.getStartState()) # add initial state as visited
-    problemStack = util.Stack()
-    problemStack.push(problem.getStartState())
+    specifiedActions = []  # list of action that I will return to get the goal
+    previouslyVisited = set()  # I use it as a reference as not to visit a place twice
+    problemStack = util.Stack()  # it will be easier to save the point and path to those points
 
-    while not problem.isGoalState(problem.getStartState()): # while i could not achieve the goal
-        nextPossilbeMoves = problem.getSuccessors(problem.getStartState()) # possible actions from my positions
-        nextPossilbeMoves.sort(key=lambda t: t[2])  # sort possible actions alphapitically
-        if not nextPossilbeMoves:
-            # set current state to previous
-            specifiedActions.pop()
-            prevPositiionVisited = problemStack.pop()
-            problem = searchAgents.PositionSearchProblem(problem.gameState, problem.costFn,problem.goal, prevPositiionVisited,problem.warn, problem.visualize)
-            continue
+    # previouslyVisited.add(problem.getStartState()) # add initial state as visited
 
-        indexAction = 0
-        # try to find the first index of list which is not visited, if all are visited; then go to except
-        try:
-            while (nextPossilbeMoves[indexAction][0]) in previouslyVisited:
-                indexAction +=1
-        except IndexError:
-            # i will get to the last visited place
-            specifiedActions.pop()
-            print(specifiedActions)
-            prevPositiionVisited = problemStack.pop()
-            if prevPositiionVisited == problem.getStartState():
-                prevPositiionVisited = problemStack.pop()
-            # set problem to current state
-            problem = searchAgents.PositionSearchProblem(problem.gameState, problem.costFn, problem.goal,
-                                                         prevPositiionVisited, problem.warn, problem.visualize)
-            continue
+    problemStack.push((problem.getStartState(), []))
 
-        firstAction = nextPossilbeMoves[indexAction]
-        previouslyVisited.add(firstAction[0])
-        problemStack.push(firstAction[0])
-        # set current state to now
-        problem = searchAgents.PositionSearchProblem(problem.gameState, problem.costFn,problem.goal, firstAction[0],problem.warn, problem.visualize)
-        # add action to specified actoins
-        specifiedActions.append(firstAction[1])
-        # check if not visited
-    print(specifiedActions)
-    return specifiedActions
+    if problem.isGoalState(problem.getStartState()):  # I sucess before i do anything
+        return []
 
-    #util.raiseNotDefined()
+    while not problem.isGoalState(problem.getStartState()):  # While i couldn't achieve the goal
+
+        point, pathToPoint = problemStack.pop()
+        previouslyVisited.add(point)
+
+        if problem.isGoalState(point):
+            return pathToPoint
+
+        nextPossibleMoves = problem.getSuccessors(point)
+
+        if nextPossibleMoves:
+            nextPossibleMoves.sort(key=lambda t: t[2]) # sory them alphapitically to use the first one first
+            for move in nextPossibleMoves:
+                if not move[0] in previouslyVisited:
+                    newPathToPoint = pathToPoint + [move[1]]
+                    problemStack.push((move[0], newPathToPoint))
+
+    # util.raiseNotDefined()
+
 
 def breadthFirstSearch(problem: SearchProblem):
     """Search the shallowest nodes in the search tree first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    problemQueue = util.Queue()
+    previouslyVisited = set()  # I use it as a reference as not to visit a place twice
+
+    problemQueue.push((problem.getStartState(),[]))
+
+    if problem.isGoalState(problem.getStartState()):
+        return []
+
+    while not problem.isGoalState(problem.getStartState()):
+        point, pathToPoint = problemQueue.pop()
+        previouslyVisited.add(point)
+
+        if problem.isGoalState(point):
+            return pathToPoint
+
+        nextPossibleMoves = problem.getSuccessors(point)
+
+        if nextPossibleMoves:
+            nextPossibleMoves.sort(key=lambda t: t[2])  # sort them alphapitically to use the first one first
+            for move in nextPossibleMoves:
+                if not move[0] in previouslyVisited:
+                    newPathToPoint = pathToPoint + [move[1]]
+                    problemQueue.push((move[0], newPathToPoint))
+
+
 
 def uniformCostSearch(problem: SearchProblem):
     """Search the node of least total cost first."""
     "*** YOUR CODE HERE ***"
     util.raiseNotDefined()
+
 
 def nullHeuristic(state, problem=None):
     """
@@ -151,6 +167,7 @@ def nullHeuristic(state, problem=None):
     goal in the provided SearchProblem.  This heuristic is trivial.
     """
     return 0
+
 
 def aStarSearch(problem: SearchProblem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
