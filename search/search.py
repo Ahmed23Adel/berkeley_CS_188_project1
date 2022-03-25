@@ -117,7 +117,7 @@ def depthFirstSearch(problem: SearchProblem):
         nextPossibleMoves = problem.getSuccessors(point)
 
         if nextPossibleMoves:
-            nextPossibleMoves.sort(key=lambda t: t[2]) # sory them alphapitically to use the first one first
+            nextPossibleMoves.sort(key=lambda t: t[2])  # sory them alphapitically to use the first one first
             for move in nextPossibleMoves:
                 if not move[0] in previouslyVisited:
                     newPathToPoint = pathToPoint + [move[1]]
@@ -128,18 +128,32 @@ def depthFirstSearch(problem: SearchProblem):
 
 def breadthFirstSearch(problem: SearchProblem):
     """Search the shallowest nodes in the search tree first."""
+
+    """
+    changes over DFS
+    1- previouslyVisited make it list as set hashes and i can't insert a unhashable list
+    2- convert from stack to queue
+    3-
+    """
     "*** YOUR CODE HERE ***"
-    problemQueue = util.Queue()
-    previouslyVisited = set()  # I use it as a reference as not to visit a place twice
+    pathToPoint = []  # list of action that I will return to get the goal
+    previouslyVisited = []  # I use it as a reference as not to visit a place twice
+    problemQueue = util.Queue()  # it will be easier to save the point and path to those points
 
-    problemQueue.push((problem.getStartState(),[]))
+    # previouslyVisited.add(problem.getStartState()) # add initial state as visited
 
-    if problem.isGoalState(problem.getStartState()):
+    problemQueue.push((problem.getStartState(), []))
+
+    if problem.isGoalState(problem.getStartState()):  # I success before I do anything
         return []
 
-    while not problem.isGoalState(problem.getStartState()):
+    while not problem.isGoalState(problem.getStartState()):  # While I couldn't achieve the goal
+
+        if problemQueue.isEmpty():
+            return []
+
         point, pathToPoint = problemQueue.pop()
-        previouslyVisited.add(point)
+        previouslyVisited.append(point)
 
         if problem.isGoalState(point):
             return pathToPoint
@@ -147,12 +161,11 @@ def breadthFirstSearch(problem: SearchProblem):
         nextPossibleMoves = problem.getSuccessors(point)
 
         if nextPossibleMoves:
-            nextPossibleMoves.sort(key=lambda t: t[2])  # sort them alphapitically to use the first one first
+            nextPossibleMoves.sort(key=lambda t: t[2])  # sort them alphabetically to use the first one first
             for move in nextPossibleMoves:
                 if not move[0] in previouslyVisited:
                     newPathToPoint = pathToPoint + [move[1]]
                     problemQueue.push((move[0], newPathToPoint))
-
 
 
 def uniformCostSearch(problem: SearchProblem):
@@ -166,7 +179,7 @@ def uniformCostSearch(problem: SearchProblem):
     problemPriorityQueue = util.PriorityQueue()
     previouslyVisited = set()  # I use it as a reference as not to visit a place twice
 
-    problemPriorityQueue.push((problem.getStartState(), []), 1/(problem.getStartState()[0]**2))
+    problemPriorityQueue.push((problem.getStartState(), []), 1 / (problem.getStartState()[0] ** 2))
 
     if problem.isGoalState(problem.getStartState()):
         return []
@@ -185,8 +198,9 @@ def uniformCostSearch(problem: SearchProblem):
             for move in nextPossibleMoves:
                 if not move[0] in previouslyVisited:
                     newPathToPoint = pathToPoint + [move[1]]
-                    #problemPriorityQueue.push((move[0], newPathToPoint),1/move[0][0]**2)
-                    problemPriorityQueue.push((move[0], newPathToPoint),problem.getCostOfActions(newPathToPoint))
+                    # problemPriorityQueue.push((move[0], newPathToPoint),1/move[0][0]**2)
+                    problemPriorityQueue.push((move[0], newPathToPoint), problem.getCostOfActions(newPathToPoint))
+
 
 def nullHeuristic(state, problem=None):
     """
